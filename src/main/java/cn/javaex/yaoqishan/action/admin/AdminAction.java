@@ -102,27 +102,27 @@ public class AdminAction {
 		StringBuffer sb = new StringBuffer();
 		sb.append("<div class='unit'>");
 		sb.append("	<div class='left'><p class='subtitle'>程序版本：</p></div>");
-		sb.append("	<div class='right'>yaoqishan 1.0.0</div>");
+		sb.append("	<div class='right'>yaoqishan 1.0.1</div>");
 		sb.append("	<span class='clearfix'></span>");
 		sb.append("</div>");
 		sb.append("<div class='unit'>");
 		sb.append("	<div class='left'><p class='subtitle'>作者：</p></div>");
-		sb.append("	<div class='right'>陈霓清</div>");
+		sb.append("	<div class='right'>孙旭</div>");
 		sb.append("	<span class='clearfix'></span>");
 		sb.append("</div>");
 		sb.append("<div class='unit'>");
 		sb.append("	<div class='left'><p class='subtitle'>联系方式：</p></div>");
-		sb.append("	<div class='right'>QQ：291026192</div>");
+		sb.append("	<div class='right'>QQ：27502033</div>");
 		sb.append("	<span class='clearfix'></span>");
 		sb.append("</div>");
 		sb.append("<div class='unit'>");
 		sb.append("	<div class='left'><p class='subtitle'>官网：</p></div>");
-		sb.append("	<div class='right'><a href='http://www.javaex.cn/' target='_blank'>http://www.javaex.cn/</a></div>");
+		sb.append("	<div class='right'><a href='http://www.mingyuekeji.cn/' target='_blank'>http://www.mingyuekeji.cn/</a></div>");
 		sb.append("	<span class='clearfix'></span>");
 		sb.append("</div>");
 		sb.append("<div class='unit'>");
 		sb.append("	<div class='left'><p class='subtitle'>版权所有：</p></div>");
-		sb.append("	<div class='right'>陈霓清</div>");
+		sb.append("	<div class='right'>孙旭</div>");
 		sb.append("	<span class='clearfix'></span>");
 		sb.append("</div>");
 		
@@ -154,7 +154,7 @@ public class AdminAction {
 		sb.append("</div>");
 		sb.append("<div class='unit'>");
 		sb.append("	<div class='left'><p class='subtitle'>联系方式：</p></div>");
-		sb.append("	<div class='right'>陈霓清，QQ：291026192</div>");
+		sb.append("	<div class='right'>孙旭，QQ：27502033</div>");
 		sb.append("	<span class='clearfix'></span>");
 		sb.append("</div>");
 		

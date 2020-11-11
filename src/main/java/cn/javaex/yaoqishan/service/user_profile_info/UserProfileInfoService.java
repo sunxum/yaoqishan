@@ -20,4 +20,8 @@ public class UserProfileInfoService {
 		iUserProfileInfoDAO.update(userProfileInfo);
 	}
 
+	
+	public void insert(UserProfileInfo userProfileInfo) {
+		iUserProfileInfoDAO.insert(userProfileInfo);
+	}
 }

@@ -102,7 +102,7 @@ public class UserInfoService {
 	 * @return 
 	 * @throws QingException 
 	 */
-	public Map<String, Object> register(HttpServletRequest request) throws QingException {
+	public Map<String, String> register(HttpServletRequest request) throws QingException {
 		// 1.0 获取注册参数
 		String szLoginName = request.getParameter("loginName");
 		String szPassWord = request.getParameter("passWord");
@@ -166,22 +166,25 @@ public class UserInfoService {
 		iUserInfoDAO.insert(userInfo);
 		
 		UserProfileInfo userProfileInfo = new UserProfileInfo();
-		userProfileInfo.setUserId(userInfo.getId());
+		UserInfo userInfo2 =iUserInfoDAO.selectUserFromUserInfo(szLoginName);
+		userProfileInfo.setUserId(userInfo2.getId());
 		userProfileInfo.setGroupId("2");	// 注册会员
 		userProfileInfo.setPoint(0);		// 积分0份
 		iUserProfileInfoDAO.insert(userProfileInfo);
 		
 		// 4.0 对用户信息进行加密，用于cookie存储
 		// 用户id
-		String UID = userInfo.getId();
+		String UID = userInfo2.getId();
 		// 用户的登录名和密码
 		String userToken = Jiami.getInstance().encrypt(szLoginName) + "&&" + Jiami.getInstance().encrypt(szPassWord);
 		// 将用户名转为没有特殊字符的base64编码
 		BASE64Encoder encoder = new BASE64Encoder();
 		userToken = encoder.encode(userToken.getBytes());
 		
-		Map<String, Object> info = new HashMap<String, Object>();
+		Map<String, String> info = new HashMap<String, String>();
 		info.put("UID", UID);
+//		info.put("szLoginName", szLoginName);
+//		info.put("szPassWord", szPassWord);
 		info.put("userToken", userToken);
 		
 		return info;
@@ -795,6 +798,11 @@ public class UserInfoService {
 				iHistoryInfoDAO.deleteByUserIdArr(userIdArr);
 			}
 		}
+	}
+
+	public UserInfo selectUserFromUserInfo(String loginName) {
+		UserInfo userInfo=iUserInfoDAO.selectUserFromUserInfo(loginName);
+		return userInfo;
 	}
 
 }

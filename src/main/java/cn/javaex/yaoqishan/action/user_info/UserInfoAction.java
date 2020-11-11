@@ -2,6 +2,7 @@ package cn.javaex.yaoqishan.action.user_info;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
@@ -17,13 +18,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import cn.javaex.yaoqishan.constant.ErrorMsg;
+import cn.javaex.yaoqishan.dao.user_profile_info.IUserProfileInfoDAO;
 import cn.javaex.yaoqishan.exception.QingException;
 import cn.javaex.yaoqishan.service.template_info.TemplateInfoService;
 import cn.javaex.yaoqishan.service.user_info.UserInfoService;
+import cn.javaex.yaoqishan.service.user_profile_info.UserProfileInfoService;
 import cn.javaex.yaoqishan.service.web_info.WebInfoService;
 import cn.javaex.yaoqishan.util.MD5;
 import cn.javaex.yaoqishan.view.Result;
 import cn.javaex.yaoqishan.view.UserInfo;
+import cn.javaex.yaoqishan.view.UserProfileInfo;
 import cn.javaex.yaoqishan.view.WebInfo;
 
 @Controller
@@ -33,9 +37,15 @@ public class UserInfoAction {
 	@Autowired
 	private UserInfoService userInfoService;
 	@Autowired
+	private UserProfileInfoService userProfileInfoService;
+	@Autowired
 	private WebInfoService webInfoService;
 	@Autowired
 	private TemplateInfoService templateInfoService;
+	@Autowired
+	private IUserProfileInfoDAO iUserInfoDAO;
+	@Autowired
+	private IUserProfileInfoDAO iUserProfileInfoDAO;
 	
 	/**
 	 * 用户注册
@@ -45,8 +55,17 @@ public class UserInfoAction {
 	@ResponseBody
 	public Result register(HttpServletRequest request) throws Exception {
 		
-		Map<String, Object> info = userInfoService.register(request);
-		
+		Map<String, String> info = userInfoService.register(request);
+//		UserProfileInfo userProfileInfo = new UserProfileInfo();
+//		String loginName=info2.get("szLoginName");
+//		UserInfo userInfo=userInfoService.selectUserFromUserInfo(loginName);
+//		userProfileInfo.setUserId(userInfo.getId());
+//		userProfileInfo.setGroupId("2");	// 注册会员
+//		userProfileInfo.setPoint(0);		// 积分0份
+//		userProfileInfoService.insert(userProfileInfo);
+//		Map<String, Object> info = new HashMap<String, Object>();
+//		info.put("UID", userInfo.getId());
+//		info.put("userToken",info2.get("userToken"));
 		return Result.success().add("info", info);
 	}
 	

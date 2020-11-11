@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
- "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 
 <mapper namespace="cn.javaex.yaoqishan.dao.user_info.IUserInfoDAO">
 	
@@ -88,7 +87,7 @@
 		</trim>
 		<selectKey keyProperty="id" order="AFTER" resultType="String">
 			<!-- 得到刚insert到数据表中的记录的主键值，只适用于自增主键 -->
-			SELECT IDENT_CURRENT('user_info') AS id
+			SELECT LAST_INSERT_ID('user_info') AS id
 		</selectKey>
 	</insert>
 	
@@ -99,9 +98,9 @@
 			ui.login_name,
 			ui.pass_word,
 			ui.email,
-			CONVERT(varchar(100), ui.register_time, 20) AS register_time,
+			ui.register_time,
 			ui.register_ip,
-			CONVERT(varchar(100), ui.last_login_time, 20) AS last_login_time,
+			ui.last_login_time,
 			ui.last_login_ip,
 			upi.avatar,
 			upi.group_id,
@@ -210,5 +209,22 @@
 			user_info
 		WHERE
 			email = #{email}
+	</select>
+	
+		<!-- 查询用户 -->
+	<select id="selectUserFromUserInfo" resultMap="UserInfoMap">
+		SELECT
+			ui.id,
+			ui.login_name,
+			ui.email,
+			ui.register_time,
+			ui.register_ip,
+			ui.last_login_time,
+			ui.last_login_ip,
+			ui.status
+		FROM
+			user_info ui
+		WHERE
+			 login_name = #{loginName}
 	</select>
 </mapper>

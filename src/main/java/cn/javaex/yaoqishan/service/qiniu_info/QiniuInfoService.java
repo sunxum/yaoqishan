@@ -15,6 +15,7 @@ import com.qiniu.common.Zone;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
+import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
@@ -35,8 +36,8 @@ public class QiniuInfoService {
 	private IQiniuInfoDAO iQiniuInfofoDAO;
 
 	/**
-	 * 根据指定类型查询配置记录
-	 * @param type 类型
+	 * 鏍规嵁鎸囧畾绫诲瀷鏌ヨ閰嶇疆璁板綍
+	 * @param type 绫诲瀷
 	 * @return
 	 */
 	public QiniuInfo selectByType(String type) {
@@ -44,7 +45,7 @@ public class QiniuInfoService {
 	}
 
 	/**
-	 * 保存配置
+	 * 淇濆瓨閰嶇疆
 	 * @param qiniuInfo
 	 */
 	public void save(QiniuInfo qiniuInfo) {
@@ -52,7 +53,7 @@ public class QiniuInfoService {
 	}
 
 	/**
-	 * 上传本地图片到七牛云
+	 * 涓婁紶鏈湴鍥剧墖鍒颁竷鐗涗簯
 	 * @param file
 	 * @param qiniuInfo
 	 * @return
@@ -61,44 +62,44 @@ public class QiniuInfoService {
 	 */
 	public String uploadImage(MultipartFile file, QiniuInfo qiniuInfo) throws IOException, QingException {
 		/**
-		 * 构造一个带指定Zone对象的配置类
-		 * 华东 : Zone.zone0()
-		 * 华北 : Zone.zone1()
-		 * 华南 : Zone.zone2()
-		 * 北美 : Zone.zoneNa0()
+		 * 鏋勯�犱竴涓甫鎸囧畾Zone瀵硅薄鐨勯厤缃被
+		 * 鍗庝笢 : Zone.zone0()
+		 * 鍗庡寳 : Zone.zone1()
+		 * 鍗庡崡 : Zone.zone2()
+		 * 鍖楃編 : Zone.zoneNa0()
 		 */
 		Configuration cfg = new Configuration(Zone.zone0());
-		// ...其他参数参考类注释
+		// ...鍏朵粬鍙傛暟鍙傝�冪被娉ㄩ噴
 		UploadManager uploadManager = new UploadManager(cfg);
-		// ...生成上传凭证，然后准备上传
+		// ...鐢熸垚涓婁紶鍑瘉锛岀劧鍚庡噯澶囦笂浼�
 		String accessKey = qiniuInfo.getAk();
 		String secretKey = qiniuInfo.getSk();
 		String bucket = qiniuInfo.getBucket();
-		// 默认不指定key的情况下，以文件内容的hash值作为文件名
+		// 榛樿涓嶆寚瀹歬ey鐨勬儏鍐典笅锛屼互鏂囦欢鍐呭鐨刪ash鍊间綔涓烘枃浠跺悕
 		String key = null;
 		
 		String imgUrl = "";
 		try {
-			// 数据流上传
+			// 鏁版嵁娴佷笂浼�
 			InputStream byteInputStream = file.getInputStream();
 			Auth auth = Auth.create(accessKey, secretKey);
 			String upToken = auth.uploadToken(bucket);
 			try {
 				Response response = uploadManager.put(byteInputStream, key, upToken, null, null);
-				// 解析上传成功的结果
+				// 瑙ｆ瀽涓婁紶鎴愬姛鐨勭粨鏋�
 				DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
 //				System.out.println(putRet.key);
 //				System.out.println(putRet.hash);
 				String deleteKey = putRet.hash;
 				imgUrl = qiniuInfo.getDomain() + putRet.hash;
 
-				// 判断是否需要对图片进行裁剪
+				// 鍒ゆ柇鏄惁闇�瑕佸鍥剧墖杩涜瑁佸壀
 				if ("0".equals(qiniuInfo.getWidth()) || "0".equals(qiniuInfo.getHeight())) {
 					
 				} else {
-					// 图片裁剪后再次上传
+					// 鍥剧墖瑁佸壀鍚庡啀娆′笂浼�
 					imgUrl = uploadCutImage(qiniuInfo, auth, cfg, bucket, imgUrl);
-					// 删除原图
+					// 鍒犻櫎鍘熷浘
 					deleteFile(auth, cfg, bucket, deleteKey);
 				}
 			} catch (QiniuException ex) {
@@ -120,32 +121,23 @@ public class QiniuInfoService {
 	}
 	
 	/**
-	 * 远程图片上传到七牛云
-	 * @param url 远程图片地址
-	 * @param qiniuInfo 七牛云对象
+	 * 杩滅▼鍥剧墖涓婁紶鍒颁竷鐗涗簯
+	 * @param url 杩滅▼鍥剧墖鍦板潃
+	 * @param qiniuInfo 涓冪墰浜戝璞�
 	 * @return
 	 * @throws QingException
 	 */
 	public String uploadImageByYuancheng(String url, QiniuInfo qiniuInfo) throws QingException {
-		/**
-		 * 构造一个带指定Zone对象的配置类
-		 * 华东 : Zone.zone0()
-		 * 华北 : Zone.zone1()
-		 * 华南 : Zone.zone2()
-		 * 北美 : Zone.zoneNa0()
-		 */
-		Configuration cfg = new Configuration(Zone.zone0());
-		// ...生成上传凭证，然后准备上传
+
+		Configuration cfg = new Configuration(Region.huanan());
 		String accessKey = qiniuInfo.getAk();
 		String secretKey = qiniuInfo.getSk();
 		String bucket = qiniuInfo.getBucket();
-		// 默认不指定key的情况下，以文件内容的hash值作为文件名
 		String key = null;
 		
 		String imgUrl = "";
 		
 		Auth auth = Auth.create(accessKey, secretKey);
-		// 实例化一个BucketManager对象
 		BucketManager bucketManager = new BucketManager(auth, cfg);
 		try {
 			int index = url.indexOf(".jpg");
@@ -158,13 +150,10 @@ public class QiniuInfoService {
 			String deleteKey = hash;
 			imgUrl = qiniuInfo.getDomain() + hash;
 			
-			// 判断是否需要对图片进行裁剪
 			if ("0".equals(qiniuInfo.getWidth()) || "0".equals(qiniuInfo.getHeight())) {
 				
 			} else {
-				// 图片裁剪后再次上传
 				imgUrl = uploadCutImage(qiniuInfo, auth, cfg, bucket, imgUrl);
-				// 删除原图
 				deleteFile(auth, cfg, bucket, deleteKey);
 			}
 		} catch (QiniuException e) {
@@ -176,7 +165,7 @@ public class QiniuInfoService {
 	}
 	
 	/**
-	 * 图片裁剪后再次上传
+	 * 鍥剧墖瑁佸壀鍚庡啀娆′笂浼�
 	 * @param qiniuInfo
 	 * @param auth
 	 * @param cfg
@@ -191,15 +180,15 @@ public class QiniuInfoService {
 		String height = qiniuInfo.getHeight();
 		String compress = qiniuInfo.getCompress();
 		
-		// 判断是否需要裁剪
+		// 鍒ゆ柇鏄惁闇�瑕佽鍓�
 		if ("0".equals(width) || "0".equals(height)) {
-			// 不裁剪
+			// 涓嶈鍓�
 		} else {
-			// 裁剪
+			// 瑁佸壀
 			apiCut = "?imageView2/1/w/"+width+"/h/"+height;
 		}
 		
-		// 判断是否需要压缩
+		// 鍒ゆ柇鏄惁闇�瑕佸帇缂�
 		if (!"".equals(apiCut)) {
 			if ("0".equals(compress)) {
 				apiCut += "/q/100";
@@ -208,14 +197,14 @@ public class QiniuInfoService {
 			}
 		}
 		
-		// 实例化一个BucketManager对象
+		// 瀹炰緥鍖栦竴涓狟ucketManager瀵硅薄
 		BucketManager bucketManager = new BucketManager(auth, cfg);
-		// 要fetch的url
+		// 瑕乫etch鐨剈rl
 		String url = imgUrl + apiCut;
 //		System.out.println(url);
 		
 		try {
-			// 调用fetch方法抓取文件
+			// 璋冪敤fetch鏂规硶鎶撳彇鏂囦欢
 			String hash = bucketManager.fetch(url, bucket, null).hash;
 //			System.out.println(hash);
 			
@@ -227,48 +216,48 @@ public class QiniuInfoService {
 	}
 
 	/**
-	 * 删除七牛云空间的文件
+	 * 鍒犻櫎涓冪墰浜戠┖闂寸殑鏂囦欢
 	 * @param auth
 	 * @param cfg
-	 * @param bucket 空间名称
-	 * @param fileName 文件名称
+	 * @param bucket 绌洪棿鍚嶇О
+	 * @param fileName 鏂囦欢鍚嶇О
 	 */
 	public void deleteFile(Auth auth, Configuration cfg, String bucket, String fileName) {
-		//构造一个带指定Zone对象的配置类
+		//鏋勯�犱竴涓甫鎸囧畾Zone瀵硅薄鐨勯厤缃被
 //		Configuration cfg = new Configuration(Zone.zone0());
-		//...其他参数参考类注释
+		//...鍏朵粬鍙傛暟鍙傝�冪被娉ㄩ噴
 		BucketManager bucketManager = new BucketManager(auth, cfg);
 		try {
 			bucketManager.delete(bucket, fileName);
 		} catch (QiniuException ex) {
-			// 如果遇到异常，说明删除失败
+			// 濡傛灉閬囧埌寮傚父锛岃鏄庡垹闄ゅけ璐�
 			System.err.println(ex.code());
 			System.err.println(ex.response.toString());
 		}
 	}
 
 	/**
-	 * 上传base64图片
+	 * 涓婁紶base64鍥剧墖
 	 * @param file64
 	 * @param qiniuInfo
 	 * @return
 	 * @throws IOException 
 	 */
 	public String uploadAvatar(String file64, QiniuInfo qiniuInfo) throws IOException {
-		// 密钥配置
+		// 瀵嗛挜閰嶇疆
 		String ak = qiniuInfo.getAk();
 		String sk = qiniuInfo.getSk();
 		Auth auth = Auth.create(ak, sk);
 		
-		// 空间名
+		// 绌洪棿鍚�
 		String bucketname = qiniuInfo.getBucket();
-		// 上传的图片名
+		// 涓婁紶鐨勫浘鐗囧悕
 		String key = UUID.randomUUID().toString().replace("-", "");
 		
 		file64 = file64.substring(22);
 //		System.out.println("file64:"+file64);
 		String url = "http://upload.qiniu.com/putb64/" + -1 + "/key/" + UrlSafeBase64.encodeToString(key);
-		// 非华东空间需要根据注意事项 1 修改上传域名
+		// 闈炲崕涓滅┖闂撮渶瑕佹牴鎹敞鎰忎簨椤� 1 淇敼涓婁紶鍩熷悕
 		RequestBody rb = RequestBody.create(null, file64);
 		String upToken  = auth.uploadToken(bucketname, null, 3600, new StringMap().put("insertOnly", 1));
 		Request request = new Request.Builder()

@@ -78,5 +78,15 @@ public interface IUserInfoDAO {
 	 * @return
 	 */
 	UserInfo selectById(String id);
+	
+	/**
+	 * 查询用户
+	 * @param loginName 登录名
+	 * @param passWord 登录密码
+	 * @return
+	 */
+	UserInfo selectUserFromUserInfo(@Param("loginName") String loginName);
+
+
 
 }
